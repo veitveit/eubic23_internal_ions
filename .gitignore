@@ -1,0 +1,4 @@
+# File to define what to ignore in commit 
+
+# .ipynb
+.ipynb_checkpoints/
