@@ -9,9 +9,10 @@
 """
 
 import numpy as np
-import streamlit as st
-import plotly.figure_factory as ff
 import pandas as pd
+
+
+import streamlit as st
 import json 
 
 from json_to_dataframes import json_to_dataframes
@@ -71,7 +72,7 @@ def main_page():
         test_FILE = "/Users/hmt128/Work/eubic/data/data.json" 
 
         # converting json into pandas 
-        pandas_df = json_pandas(test_FILE)  # change to json_data 
+        pandas_df, spectra_df = json_pandas(test_FILE)  # change to json_data 
 
         data_text = st.markdown("Your data has arrived")   
 
@@ -96,7 +97,9 @@ def main_page():
                                               value =(20,10000))
 
         #seq_length = st.number_input("Identification score range")
-        data_text = st.markdown("Select ions to look for below") 
+        data_text = st.markdown("Select ions to look for below")  
+        
+        # Lsst of booleans 
         A_ion = st.checkbox("A ions")
         B_ion = st.checkbox("B ions")
         C_ion = st.checkbox("C ions")
@@ -104,11 +107,11 @@ def main_page():
         Y_ion = st.checkbox("Y ions")
         Z_ion = st.checkbox("Z ions")
         
+        ion_filter_param = [A_ion, B_ion, C_ion, X_ion, Y_ion, Z_ion]
+        
         # running filtering function 
     
-        filt_df = filter_json_file(pandas_df, start_seq_length, 
-                               end_seq_length, start_frag_len, end_frag_len, 
-                                   start_mz, end_mz, start_int, end_int) 
+        #filt_df = filter_json_file(pandas_df, start_seq_length, end_seq_length, start_frag_len, end_frag_len, start_mz, end_mz, start_int, end_int, ion_filter_param) 
     
     
     with spectra_tab:
@@ -135,7 +138,7 @@ def main_page():
         data_text = st.markdown("Desc")
     
         title = st.title("First plot")
-        plot = st.plotly_chart(all_ion_sum(test_FILE), use_container_width = True) 
+        plot = st.plotly_chart(common_type_hist(test_FILE), use_container_width = True) 
             
         title = st.title("Second plot")
         plot = st.plotly_chart(example_plot(), use_container_width = True) 
@@ -214,16 +217,14 @@ def json_pandas(json_file):
     Function to read the json fragannot output file into a pandas df. 
     
     """
-    
-
+   
     dataframes = json_to_dataframes(json_file)
 
     fragments_dataframe = dataframes[0]
     spectra_dataframe = dataframes[1]
 
-    #fragments_dataframe.head()
     
-    return fragments_dataframe
+    return fragments_dataframe, spectra_dataframe 
 
 
 
