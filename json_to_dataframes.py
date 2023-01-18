@@ -54,26 +54,41 @@ def json_to_dataframes(json_file: str) -> List[pd.DataFrame]:
 
             # skip non-annonated fragments
             if code is None:
-                continue
-
-            start, end, ion_cap_start, ion_cap_end, charge, formula = parse_fragment_code(code)
-            frag_seq = pep_seq[start-1:end]
-            fragment['frag_seq'].append(frag_seq)
-            fragment['frag_type1'].append(ion_cap_start)
-            fragment['frag_type2'].append(ion_cap_end)
-            fragment['position_frag_type1'].append(start)
-            fragment['position_frag_type2'].append(end)
-            fragment['frag_length'].append(end-start+1)
-            fragment['frag_charge'].append(charge)
-            fragment['frag_intensity'].append(entry["annotation"]["intensity"][i])
-            fragment['frag_mz'].append(entry["annotation"]["mz"][i])
-            total_intensity = sum(entry["annotation"]["intensity"])
-            fragment['perc_of_total_intensity'].append(entry["annotation"]["intensity"][i]/total_intensity)
-            intensity_base_peak = max(entry["annotation"]["intensity"])
-            fragment['prop_intensity_to_base_peak'].append(entry["annotation"]["intensity"][i]/intensity_base_peak)
-            fragment['modification'].append(parse_modfication(entry["proforma"],start,end))
-            fragment['scan_number'].append(0) # Change later
-            fragment['ambiguity'].append(0) # Change later
+                fragment['frag_seq'].append("")
+                fragment['frag_type1'].append("n")
+                fragment['frag_type2'].append("n")
+                fragment['position_frag_type1'].append(0)
+                fragment['position_frag_type2'].append(0)
+                fragment['frag_length'].append(0)
+                fragment['frag_charge'].append(0)
+                fragment['frag_intensity'].append(entry["annotation"]["intensity"][i])
+                fragment['frag_mz'].append(entry["annotation"]["mz"][i])
+                total_intensity = sum(entry["annotation"]["intensity"])
+                fragment['perc_of_total_intensity'].append(entry["annotation"]["intensity"][i]/total_intensity)
+                intensity_base_peak = max(entry["annotation"]["intensity"])
+                fragment['prop_intensity_to_base_peak'].append(entry["annotation"]["intensity"][i]/intensity_base_peak)
+                fragment['modification'].append("")
+                fragment['scan_number'].append(0) # Change later
+                fragment['ambiguity'].append(0) # Change later
+            else:
+                start, end, ion_cap_start, ion_cap_end, charge, formula = parse_fragment_code(code)
+                frag_seq = pep_seq[start-1:end]
+                fragment['frag_seq'].append(frag_seq)
+                fragment['frag_type1'].append(ion_cap_start)
+                fragment['frag_type2'].append(ion_cap_end)
+                fragment['position_frag_type1'].append(start)
+                fragment['position_frag_type2'].append(end)
+                fragment['frag_length'].append(end-start+1)
+                fragment['frag_charge'].append(charge)
+                fragment['frag_intensity'].append(entry["annotation"]["intensity"][i])
+                fragment['frag_mz'].append(entry["annotation"]["mz"][i])
+                total_intensity = sum(entry["annotation"]["intensity"])
+                fragment['perc_of_total_intensity'].append(entry["annotation"]["intensity"][i]/total_intensity)
+                intensity_base_peak = max(entry["annotation"]["intensity"])
+                fragment['prop_intensity_to_base_peak'].append(entry["annotation"]["intensity"][i]/intensity_base_peak)
+                fragment['modification'].append(parse_modfication(entry["proforma"],start,end))
+                fragment['scan_number'].append(0) # Change later
+                fragment['ambiguity'].append(0) # Change later
 
         # Spectrum
         percentages_and_total_intensities = calculate_internal_terminal_non_annotated_ions(entry["annotation"]["theoretical_code"],entry["annotation"]["intensity"])
@@ -99,7 +114,7 @@ def json_to_dataframes(json_file: str) -> List[pd.DataFrame]:
 
     return [pd.DataFrame(fragment),pd.DataFrame(spectrum)]
 
-def find_top3_most_intense_internal_ions(fragments,intensities,pep_seq):
+def find_top3_most_intense_internal_ions(fragments, intensities, pep_seq):
     mapping = dict()
     for i, intensity in enumerate(intensities):
         # Add only the internal ions
@@ -114,6 +129,19 @@ def find_top3_most_intense_internal_ions(fragments,intensities,pep_seq):
     for code in top_3_codes:
         start, end, ion_cap_start, ion_cap_end, charge, formula = parse_fragment_code(code)
         top_3_sequences.append(pep_seq[start-1:end])
+
+    if len(top_3_codes) < 3:
+        if len(top_3_codes) == 0:
+            top_3_codes = ["", "", ""]
+            top_3_sequences = ["", "", ""]
+        if len(top_3_codes) == 1:
+            top_3_codes.append("")
+            top_3_codes.append("")
+            top_3_sequences.append("")
+            top_3_sequences.append("")
+        else:
+            top_3_codes.append("")
+            top_3_sequences.append("")
 
     return [top_3_codes,top_3_sequences]
 
@@ -150,7 +178,7 @@ def calculate_internal_terminal_non_annotated_ions(fragments,intensities):
 def parse_modfication(proforma, start, end):
 
     # Finds the modifications in the proforma string
-    pattern = r"\[([A-Za-z0-9_]+)\]"
+    pattern = r"\[([\+?\-?A-Za-z0-9_\.?0-9]+)\]"
     mods = re.findall(pattern, proforma)
 
     positions = parse_modification_positions(proforma)
@@ -160,9 +188,9 @@ def parse_modfication(proforma, start, end):
     # Finds the positions of the modifications
     for i, position in enumerate(positions):
         if position >= start and position <= end:
-            modifications += mods[i]
+            modifications += mods[i] + ";"
 
-    return modifications
+    return modifications.rstrip(";")
 
 def parse_modification_positions(seq):
 
