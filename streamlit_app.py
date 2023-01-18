@@ -14,19 +14,13 @@ import plotly.figure_factory as ff
 import pandas as pd
 import json 
 
+from json_to_dataframes import json_to_dataframes
 
 
-
-def example_plot():
-    x1 = np.random.randn(200) - 2
-    x2 = np.random.randn(200)
-    x3 = np.random.randn(200) + 2
-    hist_data = [x1, x2, x3]
-    group_labels = ['Group 1', 'Group 2', 'Group 3']
-    fig = ff.create_distplot(hist_data, group_labels, bin_size = [.1, .25, .5])
-    return fig
-
-
+from stats_page import * 
+from spectra_page import * 
+from filtering_files import * 
+    
 
 
 
@@ -45,10 +39,19 @@ def main_page():
         # Decripbe project, goal and members 
 
         text_1 = st.markdown("Internal ion description ") 
-
+        
         # Add forumula for nomenclatur and mass 
+        formula = st.latex(r'''
+                    a + ar + a r^2 + a r^3 + \cdots + a r^{n-1} =
+                    \sum_{k=0}^{n-1} ar^k =
+                    a \left(\frac{1-r^{n}}{1-r}\right)
+                    ''')
+
+        
         
     with data_import_tab:
+        
+        title = st.title("Data Import")
 
         spectrum_file = st.file_uploader("Upload spectrum file:",
                                          type = ["raw"],
@@ -109,21 +112,39 @@ def main_page():
     
     
     with spectra_tab:
+        
+        title = st.title("Spectra view")
+        
+        data_text = st.markdown("Desc")
+        
     
         Spectrum_select = st.number_input("Input desired spetrum number" , 
-                                          step = 1, min_value = 1, max_value = len(pandas_df))
+                                          step = 1, min_value = 1, max_value = len(pandas_df)) 
+        
+        # Make a function thart shows one spectra at a time 
+        # select one spectra from dataframe to pass into this fucntion
+        
+        show_specta(Spectrum_select)
 
     
 
-    with stats_tab:   
+    with stats_tab:
+        
+        title = st.title("Statistics view")
+        
+        data_text = st.markdown("Desc")
     
-        if st.button("Make some plots!", help = "desc"):
-            plot = st.plotly_chart(example_plot(), use_container_width = True) 
+        title = st.title("First plot")
+        plot = st.plotly_chart(all_ion_sum(test_FILE), use_container_width = True) 
+            
+        title = st.title("Second plot")
+        plot = st.plotly_chart(example_plot(), use_container_width = True) 
 
-        
+        title = st.title("Second plot")
+        plot = st.plotly_chart(example_plot(), use_container_width = True) 
         
     
-        
+
 
 # side bar and main page loader
 def main():
@@ -134,30 +155,24 @@ def main():
     """
 
     st.set_page_config(page_title = "Internal ions",
-                       page_icon = ":test_tube:",
-                       layout = "centered",
+                       page_icon = "random", # ":test_tube:"
+                       layout = "wide",
                        initial_sidebar_state = "expanded",
                        menu_items = {"Get Help": "https://github.com/.../discussions",
                                      "Report a bug": "https://github.com/.../issues",
-                                     "About": about_str}
+                                     "About": about_str},  # 
+
                        )
 
-    title = st.sidebar.title("Internal ions")
+    title = st.sidebar.title("EuBic 2023 Hackathon")
 
     logo = st.sidebar.image("img/logo.png", caption = "Logo")
 
     doc = st.sidebar.markdown("desc")
+   
+                               
     
-    #pages = ("Main page", "Data import", "Spectra analysis", "Statistical analysis")
-    
-    #page = st.sidebar.selectbox(label = "Start the internal fragment analysis",
-    #                            options = pages,
-    #                            index = 0,
-     #                           help = "Select a workflow that you want to run.")
-                                
-    
-    
-    contact_str = "**Contact:** [Micha Birklbauer](mailto:micha.birklbauer@gmail.com)"
+    contact_str = "**Contact:** [Arthur Grimaud](mailto:agrimaud@bmb.sdu.dk), [Caroline Lennartsson](mailto:caroline.lennartsson@cpr.ku.dk), [Kristian Boje Nielsen](krisn16@student.sdu.dk), [Louise Buur](louise.buur@fh-hagenberg.at), [Micha Birklbauer](mailto:micha.birklbauer@gmail.com), [Mohieddin Jafari](mohieddin.jafari@helsinki.fi), [Veit](veits@bmb.sdu.dk), [Vladimir Gorshkov](homer2k@gmail.com), [Zoltan Udvardy](zoltan.udvardy.ipbs@gmail.com) "
     contact = st.sidebar.markdown(contact_str)
 
     license_str = "**License:** [MIT License](https://github.com/michabirklbauer/piaweb/blob/master/LICENSE.md)"
@@ -178,6 +193,15 @@ def run_fragannot(spectrum_file, identifications_file):
     
     
     """
+    import subprocess 
+    
+    
+    # something like this 
+
+    subprocess.check_call("fragannot -i " + identifications_file + " -s " + spectrum_file, shell=True) 
+    
+    # will save files somewhere? 
+    # Path to file 
     
     json_file = "file"
 
@@ -191,28 +215,17 @@ def json_pandas(json_file):
     
     """
     
-    # Opening JSON file
-    f = open(json_file)
 
-    # returns JSON object as 
-    # a dictionary
-    data = json.load(f)
+    dataframes = json_to_dataframes(json_file)
 
-    # Iterating through the json
-    # list
+    fragments_dataframe = dataframes[0]
+    spectra_dataframe = dataframes[1]
 
-    f.close()
+    #fragments_dataframe.head()
     
-    return pd.DataFrame(data)
+    return fragments_dataframe
 
 
-def filter_json_file(pd_df, start_seq_length, end_seq_length, start_frag_len, end_frag_len, start_mz, end_mz, start_int, end_int): 
-    """ 
-    
-    """
-    filter_df = "file"
-    
-    return filter_df 
 
 
 
