@@ -11,7 +11,8 @@ def json_to_dataframes(json_file: str) -> List[pd.DataFrame]:
         data = json.load(f)
         f.close()
 
-    fragment = {'frag_seq':[],
+    fragment = {'frag_code':[],
+                'frag_seq':[],
                 'frag_type1':[],
                 'frag_type2':[],
                 'position_frag_type1':[],
@@ -54,6 +55,7 @@ def json_to_dataframes(json_file: str) -> List[pd.DataFrame]:
 
             # skip non-annonated fragments
             if code is None:
+                fragment['frag_code'].append("n:n@0:0(+0)")
                 fragment['frag_seq'].append("")
                 fragment['frag_type1'].append("n")
                 fragment['frag_type2'].append("n")
@@ -73,6 +75,7 @@ def json_to_dataframes(json_file: str) -> List[pd.DataFrame]:
             else:
                 start, end, ion_cap_start, ion_cap_end, charge, formula = parse_fragment_code(code)
                 frag_seq = pep_seq[start-1:end]
+                fragment['frag_code'].append(code)
                 fragment['frag_seq'].append(frag_seq)
                 fragment['frag_type1'].append(ion_cap_start)
                 fragment['frag_type2'].append(ion_cap_end)
