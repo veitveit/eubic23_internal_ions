@@ -10,7 +10,7 @@
 
 import numpy as np
 import streamlit as st
-import plotly.figure_factory as ff
+
 import pandas as pd
 import json 
 
@@ -135,7 +135,7 @@ def main_page():
         data_text = st.markdown("Desc")
     
         title = st.title("First plot")
-        plot = st.plotly_chart(all_ion_sum(test_FILE), use_container_width = True) 
+        plot = st.plotly_chart(common_type_hist(test_FILE), use_container_width = True) 
             
         title = st.title("Second plot")
         plot = st.plotly_chart(example_plot(), use_container_width = True) 

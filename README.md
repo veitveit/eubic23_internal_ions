@@ -13,3 +13,10 @@ spectra_dataframe = dataframes[1]
 
 fragments_dataframe.head()
 ```
+
+
+## Usage web app 
+
+```
+streamlit run streamlit_app.py 
+```
