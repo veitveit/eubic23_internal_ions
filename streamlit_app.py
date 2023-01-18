@@ -28,7 +28,13 @@ def main_page():
 
     title = st.title("Internal ions")
 
-    text_1 = st.markdown("desc")
+    text_1 = st.markdown("General description")   
+    
+    # Decripbe project, goal and members 
+    
+    text_1 = st.markdown("Internal ion description ") 
+    
+    # Add forumula for nomenclatur and mass 
 
     spectrum_file = st.file_uploader("Upload spectrum file:",
                                      type = ["raw"],
@@ -45,12 +51,29 @@ def main_page():
     run_button = st.button("Analyze Fragments!", help = "Run fragannot")  
     
     if run_button:  
-        json_data = run_fraggannot(spectrum_file, identifications_file)  
+        # Running fragannot 
+        json_data = run_fragannot(spectrum_file, identifications_file)  
+        # converting json into pandas 
         pandas_df = json_pandas(json_data) 
         
+        # filter input from user 
         seq_length = st.number_input("Minimum sequence lenght")
         
-        filt_df = filter_json_file(pandas_df, seq_length)
+        start_mz, end_mz = st.select_slider("Select m/z range", 
+                                            options= range(0,1000), 
+                                            value = (20,50))
+        
+        start_int, end_int = st.select_slider("Select intensity range", 
+                                              options= range(0,100000), 
+                                              value =(20,10000))
+        
+        #seq_length = st.number_input("Identification score range")
+        seq_length = st.number_input("Internal ions types")
+        seq_length = st.number_input("Minimum sequence lenght")
+        
+        # running filtering function
+        filt_df = filter_json_file(pandas_df, seq_length) 
+        
         
 
     if st.button("Make some plots!", help = "desc"):
@@ -68,7 +91,7 @@ def main():
     description
     """
 
-    st.set_page_config(page_title = "title",
+    st.set_page_config(page_title = "Internal ions",
                        page_icon = ":test_tube:",
                        layout = "centered",
                        initial_sidebar_state = "expanded",
@@ -90,7 +113,7 @@ def main():
     
     
     
-def run_fraggannot(spectrum_file, identifications_file): 
+def run_fragannot(spectrum_file, identifications_file): 
     """
     Funtion that runs fragannot and outputs a json file.  
     
