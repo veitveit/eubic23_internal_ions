@@ -61,9 +61,9 @@ def main_page():
 
 
         # Change this later 
-        test_FILE_name = "/Users/hmt128/Work/eubic/data/data.json" 
+        #test_FILE_name = "/Users/hmt128/Work/eubic/data/data.json" 
         
-        data_text = st.markdown("Upload and filter  json files with internal fragment ion matches from fragannot here. https://github.com/arthur-grimaud/fragannot")  
+        data_text = st.markdown("Upload and filter json files with internal fragment ion matches from fragannot here. https://github.com/arthur-grimaud/fragannot")  
         
         test_FILE = st.file_uploader("Upload json file:",
                                                 type = ["json"],
@@ -110,11 +110,13 @@ def main_page():
             cdot_ion = st.checkbox("Cdot ions", value = True)
             cm1_ion = st.checkbox("C-1 ions", value = True)
             c1_ion = st.checkbox("C+1 ions", value = True)
+            zdot_ion = st.checkbox("Zdot ions", value = True)
             z1_ion = st.checkbox("Z+1 ions", value = True)
             z2_ion = st.checkbox("Z+2 ions", value = True)
-            Z3_ion = st.checkbox("Z+3 ions", value = True)
+            Z3_ion = st.checkbox("Z+3 ions", value = True) 
+            
         
-        
+        # ADD ALL IONS
         ion_filter_param = [A_ion, B_ion, C_ion, X_ion, Y_ion, Z_ion]
         
         
@@ -158,13 +160,38 @@ def main_page():
                 with col22: 
                     # relative intensity to total intensity distribution of different ions 
                     title = st.header("Relative Log Intensities")
-                    plot = st.plotly_chart(rel_ion_intens_prop(filt_dfs[0]), use_container_width = True)
-
+                    plot = st.plotly_chart(log_ion_intens_ridge(filt_dfs[0]), use_container_width = True)
+                    
+                    
+                col11, col22 = st.columns(2)
                 
-                title = st.title("mz_dist_ion_type")
-                plot = st.plotly_chart(mz_dist_ion_type(filt_dfs[0]), use_container_width = True)
+                with col11: 
+                    title = st.header("Log Intensities Distribution")
+                    plot = st.plotly_chart(rel_ion_intens_prop(filt_dfs[0]), use_container_width = True)
+                    
+                with col22: 
+                    # relative intensity to total intensity distribution of different ions 
+                    title = st.header("Relative Log Intensities")
+                    plot = st.plotly_chart(rel_ion_intens_prop_ridge(filt_dfs[0]), use_container_width = True)
+                   
+                
+                title = st.title("Histogram of mz per ion type")
+                plot = st.plotly_chart(mz_dist_ion_type(filt_dfs[0]), use_container_width = True) 
+                
+
+                col11, col22 = st.columns(2)
+                
+                with col11: 
+                    title = st.header("Log Intensities Distribution")
+                    plot = st.plotly_chart(rel_ion_intens_perc(filt_dfs[0]), use_container_width = True)
+                    
+                with col22: 
+                    # relative intensity to total intensity distribution of different ions 
+                    title = st.header("Relative Log Intensities")
+                    plot = st.plotly_chart(rel_ion_intens_ridge(filt_dfs[0]), use_container_width = True)
                 
                 title = st.title("Per spectra")
+           
                 
                 col111, col222 = st.columns(2)
                 
