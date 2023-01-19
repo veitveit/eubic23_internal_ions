@@ -59,6 +59,21 @@ def log_ion_intens_dist(fragments_dataframe):
             yaxis_title=histnorm)
     return fig
 
+### Ridgelines of logarithmic intensities per ion type
+def log_ion_intens_ridge(fragments_dataframe):
+    histnorm = "probability"
+    types = fragments_dataframe["frag_types"].unique() 
+    fig = go.Figure()
+    for t in types:
+        fig.add_trace(go.Violin(x=np.log(fragments_dataframe[fragments_dataframe.frag_types == t].frag_intensity),name=t))
+        fig.update_traces(orientation='h', side='positive', width=3, points=False)    
+        fig.update_layout(
+            barmode='group',
+            title="Ridgelines of logarithmic intensities per ion type",
+            xaxis_title="log2(intensity)",
+            yaxis_title=histnorm)
+    return fig
+
 # relative intensity to total intensity distribution of different ions
 # density or probability
 def rel_ion_intens_perc(fragments_dataframe):
@@ -75,6 +90,21 @@ def rel_ion_intens_perc(fragments_dataframe):
             xaxis_title="intensity",
             yaxis_title=histnorm)
         #fig.show()
+    return fig
+
+### Ridgelines of relative intensities per ion type
+def rel_ion_intens_ridge(fragments_dataframe):
+    fig = go.Figure()
+    histnorm = "probability"
+    types = fragments_dataframe["frag_types"].unique()
+    for t in types:
+        fig.add_trace(go.Violin(x=fragments_dataframe[fragments_dataframe.frag_types == t].perc_of_total_intensity,name=t))
+        fig.update_traces(orientation='h', side='positive', width=3, points=False)    
+        fig.update_layout(
+            barmode='group',
+            title="Ridgelines of relative intensities per ion type",
+            xaxis_title="intensity",
+            yaxis_title=histnorm)
     return fig
 
 # relative intensity to total intensity distribution of different ions
@@ -95,6 +125,20 @@ def rel_ion_intens_prop(fragments_dataframe):
         #fig.show()
     return fig
 
+## Ridgelines of relative intensities to base peak per ion type
+def rel_ion_intens_prop_ridge(fragments_dataframe):
+    histnorm = "probability"
+    types = fragments_dataframe["frag_types"].unique() 
+    fig = go.Figure()
+    for t in types:
+        fig.add_trace(go.Violin(x=fragments_dataframe[fragments_dataframe.frag_types == t].prop_intensity_to_base_peak,name=t))
+        fig.update_traces(orientation='h', side='positive', width=3, points=False)    
+        fig.update_layout(
+            barmode='group',
+            title="Ridgelines of relative intensities to base peak per ion type",
+            xaxis_title="intensity",
+            yaxis_title=histnorm)
+    return fig
 
 # mz distribution of different ion types
 # density or probability
