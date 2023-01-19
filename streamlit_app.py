@@ -16,8 +16,6 @@ import streamlit as st
 import json 
 
 from json_to_dataframes import json_to_dataframes
-
-
 from stats_page import * 
 from spectra_page import * 
 from filtering_files import * 
@@ -51,24 +49,29 @@ def main_page():
         
         title = st.title("Data Import")
 
-        spectrum_file = st.file_uploader("Upload spectrum file:",
-                                         type = ["raw"],
-                                         help = "desc"
-                                        )
+        
+        #spectrum_file = st.file_uploader("Upload spectrum file:",
+        #                                 type = ["raw"],
+        #                                 help = "desc"
+        #                                )
     
-        identifications_file = st.file_uploader("Upload identification file:",
-                                                type = ["mzId"],
-                                                help = "desc"
-                                               )
+        #identifications_file = st.file_uploader("Upload identification file:",
+        #                                        type = ["mzId"],
+        #                                        help = "desc"
+        #                                       )
 
-   
-        # Running fragannot 
-        #json_data = run_fragannot(spectrum_file, identifications_file)  
 
         # Change this later 
-        test_FILE = "/Users/hmt128/Work/eubic/data/data.json" 
-        dataframes = json_to_dataframes(test_FILE)
-
+        test_FILE_name = "/Users/hmt128/Work/eubic/data/data.json" 
+        
+        data_text = st.markdown("Upload and filter  json files with internal fragment ion matches from fragannot here. https://github.com/arthur-grimaud/fragannot")  
+        
+        test_FILE = st.file_uploader("Upload json file:",
+                                                type = ["json"],
+                                                help = "Process you mzid and mgf file to fins internal fragment ions using fragannot on: https://github.com/arthur-grimaud/fragannot"
+                                               )
+        
+  
         data_text = st.markdown("Select filtering options below")  
 
         start_seq_length, end_seq_length = st.select_slider("Peptide sequence lenght", 
@@ -100,27 +103,39 @@ def main_page():
         
         ion_filter_param = [A_ion, B_ion, C_ion, X_ion, Y_ion, Z_ion]
         
-        # running filtering function 
-        filt_dfs = filtering_files(dataframes, start_seq_length, end_seq_length, start_frag_len, end_frag_len, start_mz, end_mz, start_int, end_int, ion_filter_param)
         
-        data_text = st.markdown("Your data has arrived")
-        st.table(filt_dfs[0].head(10))
+        if test_FILE is not None:
+            
+            dataframes = json_to_dataframes(test_FILE_name, is_file = True) 
+            
+            # running filtering function 
+            filt_dfs = filtering_files(dataframes, start_seq_length, end_seq_length, start_frag_len, end_frag_len, start_mz, end_mz, start_int, end_int, ion_filter_param)
+            
+            # showing data in app
+            data_text = st.markdown("Your data has arrived")
+            st.table(filt_dfs[0].head(10))
+            
+        elif test_FILE is None: 
+            data_text = st.markdown("Please upload a file for analysis!")
+        
+
     
     with spectra_tab:
+        
+        # WIP
         
         title = st.title("Spectra view")
         
         data_text = st.markdown("Desc")
         
     
-        Spectrum_select = st.number_input("Input desired spetrum number" , 
-                                          step = 1, min_value = 1, max_value = len(filt_dfs[1])) 
+        #Spectrum_select = st.number_input("Input desired spetrum number" , 
+        #                                  step = 1, min_value = 1, max_value = len(filt_dfs[1])) 
         
         # Make a function thart shows one spectra at a time 
         # select one spectra from dataframe to pass into this fucntion
         
-        show_specta(Spectrum_select)
-
+        #show_specta(Spectrum_select)
     
 
     with stats_tab:
@@ -130,7 +145,7 @@ def main_page():
         data_text = st.markdown("Desc")
     
         title = st.title("First plot")
-        plot = st.plotly_chart(common_type_hist(test_FILE), use_container_width = True) 
+        plot = st.plotly_chart(common_type_hist(test_FILE_name), use_container_width = True) 
             
         title = st.title("Second plot")
         plot = st.plotly_chart(example_plot(), use_container_width = True) 
