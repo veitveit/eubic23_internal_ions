@@ -1,0 +1,84 @@
+---
+title: "Visulaize density plot of normalized intensity values"
+output:
+  html_document:
+    df_print: paged
+---
+#Library
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("MSnbase")
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("rawrr")
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("RforProteomics")
+
+library(rjson)
+library(tidyverse)
+library(plotly)
+```
+
+
+```{r}
+# You can pass directly the filename data
+my.JSON <- fromJSON("02079a_BD4-TUM_isoform_40_01_01-2xIT_2xHCD-1h-R3.json") |> 
+                      mutate(length = nchar(sequence))
+
+my.JSON_ann <- my.JSON$annotation
+
+# You can produce a data frame for ion separately with logarithmic normalized intensity values
+test <- list()
+# Note to set dimension for counter variable here based on json file
+for(i in 1:53245){
+  
+test[[i]] <- data.frame(ion = c(my.JSON_ann$theoretical_code[i] |> unlist()), 
+                        intens = c(my.JSON_ann$intensity[i] |> unlist())) |> 
+  separate(ion, c("name", "details"), sep = "@") |> 
+  mutate(nor_intens = log10(intens/sum(intens)))
+}
+
+test <- test |> map_df(as_tibble)
+
+#Preprocessing data frame
+test$name[is.na(test$name)] <- "Noise"
+is.infinite(test$nor_intens) |> sum()
+
+
+#Statistical test to compare the median values
+pairwise.wilcox.test(test$nor_intens,test$name, conf.int = TRUE, conf.level = 0.95, alternative = "two.sided")
+
+
+#Diffrent types of density plots  
+ssss <- test |> 
+  ggplot(aes(x=nor_intens,fill = name)) + 
+  geom_density()+
+  facet_wrap(~name, ncol = 1)
+  
+# sss <- test |> 
+#   ggplot(aes(x=nor_intens,y=name, fill = name)) + 
+#   stat_density_ridges(quantile_lines = TRUE, alpha = 0.75,
+#                       quantiles = 2)
+# 
+# ss <- ggplot(test, aes(x = nor_intens, y = name, fill = name)) +
+#   geom_density_ridges(quantile_lines=TRUE,
+#                       quantile_fun=function(x,...)median(x))+
+#   theme(legend.position = "none")
+# 
+# s <- ggplot(test, aes(x = nor_intens, y = name, fill = 0.5 - abs(0.5 - stat(ecdf)))) +
+#   stat_density_ridges(geom = "density_ridges_gradient", calc_ecdf = TRUE) +
+#   scale_fill_gradient(low = "white", high = "#87CEFF",
+#                       name = "Tail prob.")
+
+#To have html from plotly
+ggplotly(ssss)
+
+```
+
+
+
