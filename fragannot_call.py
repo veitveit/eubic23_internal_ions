@@ -12,7 +12,7 @@ def fragannot_call(spectrum_file: BytesIO,
                    identifications_file: BytesIO,
                    tolerance: float,
                    fragment_types: List[str],
-                   chargess: List[str],
+                   charges: List[str],
                    losses: List[str],
                    file_format: str = "infer") -> Dict:
 
