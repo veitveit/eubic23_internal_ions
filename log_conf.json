@@ -1,0 +1,33 @@
+{
+    "version": 1,
+    "disable_existing_loggers": true,
+    "formatters": {
+        "fragannotFormatter": {
+            "format": "[%(asctime)s] %(levelname)s: %(module)s.%(funcName)s\n\t%(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "fragannotFormatter",
+            "stream": "ext://sys.stdout"
+        }
+    },
+    "loggers": {
+        "fragannotLogger": {
+            "handlers": [
+                "console"
+            ],
+            "level": "INFO",
+            "qualname": "fragannotLogger",
+            "propagate": 0
+        }
+    },
+    "root": {
+        "handlers": [
+            "console"
+        ],
+        "level": "INFO"
+    }
+}
