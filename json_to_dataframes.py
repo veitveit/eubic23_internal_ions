@@ -8,7 +8,7 @@ from typing import List
 def json_to_dataframes(json_file: str, is_file: bool = False) -> List[pd.DataFrame]:
 
     if is_file:
-        data = json.load(f)
+        data = json.load(json_file)
     else:
         with open(json_file, "r", encoding = "utf-8") as f:
             data = json.load(f)
