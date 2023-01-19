@@ -17,6 +17,7 @@ fragments_dataframe.head()
 
 ## Usage web app 
 
+Maximum upload file size will be 5GB
 ```
-streamlit run streamlit_app.py 
+streamlit run streamlit_app.py --server.maxUploadSize 5000
 ```
