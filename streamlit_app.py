@@ -89,15 +89,31 @@ def main_page():
                                               value =(0,100000))
 
         #seq_length = st.number_input("Identification score range")
-        data_text = st.markdown("Select ions to look for below")  
+        data_text = st.markdown("Select which ions to analyse")  
         
-        # Lsst of booleans 
-        A_ion = st.checkbox("A ions", value = True)
-        B_ion = st.checkbox("B ions", value = True)
-        C_ion = st.checkbox("C ions", value = True)
-        X_ion = st.checkbox("X ions", value = True)
-        Y_ion = st.checkbox("Y ions", value = True)
-        Z_ion = st.checkbox("Z ions", value = True)
+        # List of booleans 
+        
+        check_col1, check_col2 = st.columns(2) 
+        
+        
+        with check_col1: 
+            n_ion = st.checkbox("n ions", value = True)
+            A_ion = st.checkbox("A ions", value = True)
+            B_ion = st.checkbox("B ions", value = True)
+            C_ion = st.checkbox("C ions", value = True)
+            X_ion = st.checkbox("X ions", value = True)
+            Y_ion = st.checkbox("Y ions", value = True)
+            Z_ion = st.checkbox("Z ions", value = True)
+        
+        with check_col2: 
+            
+            cdot_ion = st.checkbox("Cdot ions", value = True)
+            cm1_ion = st.checkbox("C-1 ions", value = True)
+            c1_ion = st.checkbox("C+1 ions", value = True)
+            z1_ion = st.checkbox("Z+1 ions", value = True)
+            z2_ion = st.checkbox("Z+2 ions", value = True)
+            Z3_ion = st.checkbox("Z+3 ions", value = True)
+        
         
         ion_filter_param = [A_ion, B_ion, C_ion, X_ion, Y_ion, Z_ion]
         
@@ -106,8 +122,10 @@ def main_page():
             
             dataframes = json_to_dataframes(test_FILE, is_file = True) 
 
-            # running filtering function 
-            filt_dfs = filtering_files(dataframes, start_seq_length, end_seq_length, start_frag_len, end_frag_len, start_mz, end_mz, start_int, end_int, ion_filter_param)
+               
+            filt_dfs = filtering_files(dataframes, start_seq_length, end_seq_length, start_frag_len, end_frag_len, start_mz, end_mz, start_int, end_int, ion_filter_param) 
+                
+
 
             # showing data in app
             data_text = st.markdown("Your data has arrived!")
