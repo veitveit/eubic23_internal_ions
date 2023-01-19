@@ -13,7 +13,6 @@ import pandas as pd
 
 
 import streamlit as st
-import json 
 
 from json_to_dataframes import json_to_dataframes
 from stats_page import * 
@@ -26,8 +25,8 @@ from filtering_files import *
 # main page content
 def main_page(): 
     
-    main_tab, data_import_tab, spectra_tab, stats_tab = st.tabs(["Main page", "Data import", 
-                                                                  "Spectra analysis", "Statistical analysis"])
+    main_tab, data_import_tab, stats_tab = st.tabs(["Main page", "Data import", 
+                                                                  "Statistical analysis"]) # "Spectra analysis",  spectra_tab, 
 
     with main_tab:
         title = st.title("Internal ions")
@@ -71,7 +70,6 @@ def main_page():
                                                 help = "Process you mzid and mgf file to fins internal fragment ions using fragannot on: https://github.com/arthur-grimaud/fragannot"
                                                )
         
-  
         data_text = st.markdown("Select filtering options below")  
 
         start_seq_length, end_seq_length = st.select_slider("Peptide sequence lenght", 
@@ -106,27 +104,75 @@ def main_page():
         
         if test_FILE is not None:
             
-            dataframes = json_to_dataframes(test_FILE_name, is_file = True) 
-            
+            dataframes = json_to_dataframes(test_FILE, is_file = True) 
+
             # running filtering function 
             filt_dfs = filtering_files(dataframes, start_seq_length, end_seq_length, start_frag_len, end_frag_len, start_mz, end_mz, start_int, end_int, ion_filter_param)
-            
+
             # showing data in app
-            data_text = st.markdown("Your data has arrived")
+            data_text = st.markdown("Your data has arrived!")
             st.table(filt_dfs[0].head(10))
             
-        elif test_FILE is None: 
-            data_text = st.markdown("Please upload a file for analysis!")
+            
+            with stats_tab:
+        
+                title = st.title("Statistics view")
+
+                data_text = st.markdown("Desc")
+                
+                col1, col2 = st.columns(2)
+                
+                with col1: 
+                    title = st.header("Commmon type Histogram")
+                    plot = st.plotly_chart(common_type_hist(filt_dfs[0]), use_container_width = True) 
+                    
+                with col2: 
+                    title = st.header("Common types Pie chart ")
+                    plot = st.plotly_chart(common_type_pie(filt_dfs[0]), use_container_width = True) 
+                    
+                    
+                col11, col22 = st.columns(2)
+                
+                with col11: 
+                    title = st.header("Log Intensities Distribution")
+                    plot = st.plotly_chart(log_ion_intens_dist(filt_dfs[0]), use_container_width = True)
+                    
+                with col22: 
+                    # relative intensity to total intensity distribution of different ions 
+                    title = st.header("Relative Log Intensities")
+                    plot = st.plotly_chart(rel_ion_intens_prop(filt_dfs[0]), use_container_width = True)
+
+                
+                title = st.title("mz_dist_ion_type")
+                plot = st.plotly_chart(mz_dist_ion_type(filt_dfs[0]), use_container_width = True)
+                
+                title = st.title("Per spectra")
+                
+                col111, col222 = st.columns(2)
+                
+                with col111: 
+                    title = st.header("per_spec_ion_type")
+                    plot = st.plotly_chart(per_spec_ion_type(filt_dfs[1]), use_container_width = True)
+                    
+                with col222: 
+                    title = st.header("Log Intensities")
+                    plot = st.plotly_chart(per_spec_ion_intens(filt_dfs[1]), use_container_width = True)
+                
+            
+
+        #elif test_FILE is None: 
+            #data_text = st.markdown("Please upload a file for analysis!")
+            #None 
         
 
     
-    with spectra_tab:
+    #with spectra_tab:
         
         # WIP
         
-        title = st.title("Spectra view")
+        #title = st.title("Spectra view")
         
-        data_text = st.markdown("Desc")
+        #data_text = st.markdown("Desc")
         
     
         #Spectrum_select = st.number_input("Input desired spetrum number" , 
@@ -138,20 +184,7 @@ def main_page():
         #show_specta(Spectrum_select)
     
 
-    with stats_tab:
-        
-        title = st.title("Statistics view")
-        
-        data_text = st.markdown("Desc")
-    
-        title = st.title("First plot")
-        plot = st.plotly_chart(common_type_hist(test_FILE_name), use_container_width = True) 
-            
-        title = st.title("Second plot")
-        plot = st.plotly_chart(example_plot(), use_container_width = True) 
-
-        title = st.title("Second plot")
-        plot = st.plotly_chart(example_plot(), use_container_width = True) 
+ 
         
     
 
