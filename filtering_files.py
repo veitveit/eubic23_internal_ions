@@ -15,7 +15,7 @@ def filtering_files(dataframes: List[pd.DataFrame],
     """
 
     """
-    ion_filter_translation = ["a", "b", "c", "x", "y", "z"]
+    ion_filter_translation = ["n", "a", "b", "c", "cdot", "c-1", "c+1", "x", "y", "z", "zdot", "z+1", "z+2", "z+3"]
     ions_considered = []
 
     for i, val in enumerate(ion_filter):
