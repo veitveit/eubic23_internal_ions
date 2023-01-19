@@ -25,7 +25,6 @@ def common_type_gen(fragments_dataframe):
     common_type = common_type.replace("n", "not annotated", regex=True)
     common_type = common_type.replace("t-","",regex=True)
     common_type = common_type.replace("-t","",regex=True)
-    #counts = common_type.value_counts()
     fragments_dataframe['frag_types'] = common_type
     return common_type
     
@@ -34,20 +33,18 @@ def common_type_gen(fragments_dataframe):
 def common_type_hist(common_type):
     fig = go.Figure([go.Histogram(x=common_type)])
     return fig
-    #fig.show()
+
     
 def common_type_pie(common_type):
     counts = common_type.value_counts()
     fig = go.Figure([go.Pie(labels=counts.keys(), values=counts)])
     return fig
-    #fig.show()
 
 # intensity distribution of different ions
 # density or probability
 def log_ion_intens_dist(fragments_dataframe):
     histnorm = "probability"
     types = fragments_dataframe["frag_types"].unique() 
-    #print(types)
     histograms = list()
     for t in types:
         histograms.append(go.Histogram(x=np.log(fragments_dataframe[fragments_dataframe.frag_types == t].frag_intensity),histnorm=histnorm, name=t, nbinsx=50))
@@ -79,7 +76,6 @@ def log_ion_intens_ridge(fragments_dataframe):
 def rel_ion_intens_perc(fragments_dataframe):
     histnorm = "probability"
     types = fragments_dataframe["frag_types"].unique() 
-    #print(types)
     histograms = list() 
     for t in types:
         histograms.append(go.Histogram(x=fragments_dataframe[fragments_dataframe.frag_types == t].perc_of_total_intensity,histnorm=histnorm, name=t, nbinsx=50))
@@ -89,7 +85,6 @@ def rel_ion_intens_perc(fragments_dataframe):
             title="Histograms of relative intensities per ion type",
             xaxis_title="intensity",
             yaxis_title=histnorm)
-        #fig.show()
     return fig
 
 ### Ridgelines of relative intensities per ion type
@@ -113,7 +108,6 @@ def rel_ion_intens_ridge(fragments_dataframe):
 def rel_ion_intens_prop(fragments_dataframe):
     histnorm = "probability"
     types = fragments_dataframe["frag_types"].unique() 
-    #print(types)
     histograms = list()
     for t in types:
         histograms.append(go.Histogram(x=fragments_dataframe[fragments_dataframe.frag_types == t].prop_intensity_to_base_peak,histnorm=histnorm, name=t, nbinsx=50))
@@ -123,7 +117,6 @@ def rel_ion_intens_prop(fragments_dataframe):
             title="Histograms of relative intensities to base peak per ion type",
             xaxis_title="Percentage per base peak",
             yaxis_title=histnorm)
-        #fig.show()
     return fig
 
 ## Ridgelines of relative intensities to base peak per ion type
@@ -146,7 +139,6 @@ def rel_ion_intens_prop_ridge(fragments_dataframe):
 def mz_dist_ion_type(fragments_dataframe):
     histnorm = "probability"
     types = fragments_dataframe["frag_types"].unique() 
-    #print(types)
     histograms = list()
     for t in types:
         histograms.append(go.Histogram(x=fragments_dataframe[fragments_dataframe.frag_types == t].frag_mz, histnorm=histnorm, name=t, nbinsx=50))
@@ -156,7 +148,6 @@ def mz_dist_ion_type(fragments_dataframe):
             title="Histograms of mz values per ion type",
             xaxis_title="mz",
             yaxis_title=histnorm)
-        #fig.show()
     return fig
 
 
@@ -175,7 +166,6 @@ def per_spec_ion_type(spectra_dataframe):
             title="Histograms of percentages of ion type per spectrum",
             xaxis_title="Percentage",
             yaxis_title=histnorm)
-        #fig.show()
     return fig
 
 ### Same for intensities
@@ -191,7 +181,6 @@ def per_spec_ion_intens(spectra_dataframe):
             title="Histograms of percentages of ion type per spectrum",
             xaxis_title="Percentage",
             yaxis_title=histnorm)
-        #fig.show()
     return fig
 
 ## Distribution of total intensity of single amino acids
