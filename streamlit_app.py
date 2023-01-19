@@ -199,14 +199,14 @@ def main_page():
                     col1, col2 = st.columns(2)
 
                     with col1:
-                        title = st.header("Commmon type Histogram")
+                        title = st.header("Histogram of ion types:")
                         plot = st.plotly_chart(common_type_hist(filt_dfs[0]), use_container_width = True)
 
                     with col2:
-                        title = st.header("Common types Pie chart")
+                        title = st.header("Pie chart of ion types:")
                         plot = st.plotly_chart(common_type_pie(filt_dfs[0]), use_container_width = True)
 
-                    title = st.title("Histogram of mz per ion type")
+                    title = st.header("Histogram of m/z per ion type:")
                     plot = st.plotly_chart(mz_dist_ion_type(filt_dfs[0]), use_container_width = True)
 
                     col11, col22 = st.columns(2)
@@ -233,10 +233,15 @@ def main_page():
                         plot = st.plotly_chart(per_spec_ion_intens(filt_dfs[1]), use_container_width = True)
 
                     # Logo view
-                    title = st.title("Logo view of internal fragments")
+                    title = st.header("Logo view of internal fragments")
                     #plot = st.plotly_chart(, use_container_width = True)
 
-                    plot = st.pyplot(logo_of_fraction(filt_dfs[1])) # , clear_figure=None, **kwargs
+                    #text_1 = st.markdown("Select number of top spectra with the highest number of internal ions to inlcude in logo. Choose number 0 for making a logo of all spectra.")
+                    #number_topn = st.number_input("Choose number of spectra in logo:", min_value = 0, max_value = 3, step = 1)
+                    #min_length_logo, max_length_logo = st.select_slider("Peptide sequence lenght:",
+                    #                                                    options = range(0,21),
+                    #                                                    value = (0,20))
+                    plot = st.pyplot(logo_of_fraction(filt_dfs[1], filt_dfs[0]))#, number_topn, max_length_logo, min_length_logo))
 
             #with spectra_tab:
 
@@ -260,7 +265,7 @@ def main():
 
     about_str = \
     """
-    Fragment Explorer is a small program to explore fragment ions mass spectra.
+    Fragment Explorer is a small program to explore fragment ions in mass spectra.
     """
 
     st.set_page_config(page_title = "Internal ions",
@@ -277,12 +282,7 @@ def main():
 
     logo = st.sidebar.image("img/image(1).gif") # , caption = "Logo"
 
-    doc_str = \
-    """
-    We created a workflow for exploring internal ions from raw spectra and identified spectra given in various formats. A comprehensive nomenclature for internal ions allows their precise definition and the calculation of their masses. The nomenclature was implemented into a new tool for annotating fragment ions entitled "fragannot". This tool output fragment annotation as a json file. This json file is then read by "fragment explorer" to create fragment centric and spectrum centric statistics as well as multiple interactive visualizations.
-    """
-
-    doc = st.sidebar.markdown(doc_str)
+    doc = st.sidebar.markdown(about_str)
 
     contact_str = "**Contact:** [Arthur Grimaud](mailto:agrimaud@bmb.sdu.dk), [Caroline Lennartsson](mailto:caroline.lennartsson@cpr.ku.dk), [Kristian Boje Nielsen](krisn16@student.sdu.dk), [Louise Buur](louise.buur@fh-hagenberg.at), [Micha Birklbauer](mailto:micha.birklbauer@gmail.com), [Mohieddin Jafari](mohieddin.jafari@helsinki.fi), [Veit Schwämmle](veits@bmb.sdu.dk), [Vladimir Gorshkov](homer2k@gmail.com), [Zoltan Udvardy](zoltan.udvardy.ipbs@gmail.com) "
     contact = st.sidebar.markdown(contact_str)

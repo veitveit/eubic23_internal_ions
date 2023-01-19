@@ -2,9 +2,9 @@ import json
 import pandas as pd
 import plotly.io as io
 import numpy as np
-import logomaker 
+import logomaker
 
-# 
+#
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 
@@ -20,7 +20,7 @@ def example_plot():
     hist_data = [x1, x2, x3]
     group_labels = ['Group 1', 'Group 2', 'Group 3']
     fig = ff.create_distplot(hist_data, group_labels, bin_size = [.1, .25, .5])
-    
+
     return fig
 
 
@@ -47,25 +47,25 @@ def common_type_gen(fragments_dataframe):
     #counts = common_type.value_counts()
     fragments_dataframe['frag_types'] = common_type
     return common_type
-    
-    
-    
-    
-# Frequency of ion types 
+
+
+
+
+# Frequency of ion types
 def common_type_hist(fragments_dataframe):
-    
+
     common_type = common_type_gen(fragments_dataframe)
-    
+
     fig = go.Figure([go.Histogram(x=common_type)])
     return fig
 
 
 
-    
+
 def common_type_pie(fragments_dataframe):
-    
+
     common_type = common_type_gen(fragments_dataframe)
-    
+
     counts = common_type.value_counts()
     fig = go.Figure([go.Pie(labels=counts.keys(), values=counts)])
     return fig
@@ -77,7 +77,7 @@ def common_type_pie(fragments_dataframe):
 # density or probability
 def log_ion_intens_dist(fragments_dataframe):
     histnorm = "probability"
-    types = fragments_dataframe["frag_types"].unique() 
+    types = fragments_dataframe["frag_types"].unique()
     #print(types)
     histograms = list()
     for t in types:
@@ -88,7 +88,7 @@ def log_ion_intens_dist(fragments_dataframe):
             title="Histograms of logarithmic intensities per ion type",
             xaxis_title="log2(intensity)",
             yaxis_title=histnorm)
-        
+
     return fig
 
 
@@ -97,9 +97,9 @@ def log_ion_intens_dist(fragments_dataframe):
 # density or probability
 def rel_ion_intens_perc(fragments_dataframe):
     histnorm = "probability"
-    types = fragments_dataframe["frag_types"].unique() 
+    types = fragments_dataframe["frag_types"].unique()
     #print(types)
-    histograms = list() 
+    histograms = list()
     for t in types:
         histograms.append(go.Histogram(x=fragments_dataframe[fragments_dataframe.frag_types == t].perc_of_total_intensity,histnorm=histnorm, name=t, nbinsx=50))
         fig = go.Figure(histograms)
@@ -117,7 +117,7 @@ def rel_ion_intens_perc(fragments_dataframe):
 # density or probability
 def rel_ion_intens_prop(fragments_dataframe):
     histnorm = "probability"
-    types = fragments_dataframe["frag_types"].unique() 
+    types = fragments_dataframe["frag_types"].unique()
     #print(types)
     histograms = list()
     for t in types:
@@ -136,7 +136,7 @@ def rel_ion_intens_prop(fragments_dataframe):
 # density or probability
 def mz_dist_ion_type(fragments_dataframe):
     histnorm = "probability"
-    types = fragments_dataframe["frag_types"].unique() 
+    types = fragments_dataframe["frag_types"].unique()
     #print(types)
     histograms = list()
     for t in types:
@@ -177,7 +177,7 @@ def per_spec_ion_intens(spectra_dataframe):
     histnorm = "probability"
     types = ["internal","terminal","other"]
     histograms = list()
-    
+
     for t in types:
         histograms.append(go.Histogram(x=spectra_dataframe["total_int_" + t], histnorm=histnorm, name=t, nbinsx=50))
         fig = go.Figure(histograms)
@@ -250,27 +250,30 @@ def rel_ion_intens_prop_ridge(fragments_dataframe):
 
 ## Distribution of total intensity of single amino acids
 # Filter for all single amino acid fragments
-#fragments_dataframe[fragments_dataframe['frag_seq'].str.len() == 1 and fragments_dataframe.modification.empty()] 
+#fragments_dataframe[fragments_dataframe['frag_seq'].str.len() == 1 and fragments_dataframe.modification.empty()]
 
+def logo_of_fraction(spectra_dataframe, fragments_dataframe, topn = 3, max_length = 10, min_length = 10):
 
+    fig1, ax1 = plt.subplots(facecolor = "white", figsize=(8,4))
 
+    print(spectra_dataframe.shape)
+    print(fragments_dataframe.shape)
 
-def logo_of_fraction(spectra_dataframe, topn = 3, max_length = 10, min_length = 10):
-    
-
-    fig1, ax1 = plt.subplots(facecolor = (0.18, 0.31, 0.31)) 
-    
-    df = spectra_dataframe.top1_internal_seq
-    
+    if topn == 0:
+        df = fragments_dataframe.frag_seq
+    else:
+        df = spectra_dataframe.top1_internal_seq
     if topn > 1:
         df = pd.concat([df, spectra_dataframe.top2_internal_seq])
     if topn > 2:
         df = pd.concat([df, spectra_dataframe.top3_internal_seq])
 
-    
+    print(df.shape)
+
     # Finding the maximum length of the strings in the column
     # Creating a new dataframe to store the results
     df_frequency = pd.DataFrame()
+
     # Iterating over each position up to the maximum length
     tt = df[(df.str.len() <= max_length) & (df.str.len() >= min_length) ]
     for i in range(0, max_length):
@@ -281,18 +284,18 @@ def logo_of_fraction(spectra_dataframe, topn = 3, max_length = 10, min_length = 
         # Displaying the frequency dataframe
     df_frequency = df_frequency.fillna(0)
         # Transposing and plotting logos
+
+    print(df_frequency.shape)
+
     ww_df = df_frequency.T
-    logomaker.Logo(ww_df, ax=ax1,
-                             color_scheme='NajafabadiEtAl2017',
-                             vpad=.1,
-                             width=.8,
-                             )
-    
+    logomaker.Logo(ww_df,
+                   ax=ax1,
+                   color_scheme='NajafabadiEtAl2017',
+                   vpad=.1,
+                   width=.8,
+                  )
     ax1.set_xlabel("Position in subset")
     ax1.set_ylabel("Amino acid frequency")
     ax1.set_facecolor('white')
 
-    
     return fig1
-
-
