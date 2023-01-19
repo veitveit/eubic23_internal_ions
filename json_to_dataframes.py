@@ -4,6 +4,7 @@ import re
 import json
 import pandas as pd
 from typing import List
+from typing import Dict
 
 def json_to_dataframes(json_file: str, is_file: bool = False) -> List[pd.DataFrame]:
 
@@ -13,6 +14,10 @@ def json_to_dataframes(json_file: str, is_file: bool = False) -> List[pd.DataFra
         with open(json_file, "r", encoding = "utf-8") as f:
             data = json.load(f)
             f.close()
+
+    return json_to_dataframes2(data)
+
+def json_to_dataframes2(data: Dict) -> List[pd.DataFrame]:
 
     fragment = {'frag_code':[],
                 'frag_seq':[],
