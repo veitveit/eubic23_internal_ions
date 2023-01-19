@@ -256,9 +256,6 @@ def logo_of_fraction(spectra_dataframe, fragments_dataframe, topn = 3, max_lengt
 
     fig1, ax1 = plt.subplots(facecolor = "white", figsize=(8,4))
 
-    print(spectra_dataframe.shape)
-    print(fragments_dataframe.shape)
-
     if topn == 0:
         df = fragments_dataframe.frag_seq
     else:
@@ -267,8 +264,6 @@ def logo_of_fraction(spectra_dataframe, fragments_dataframe, topn = 3, max_lengt
         df = pd.concat([df, spectra_dataframe.top2_internal_seq])
     if topn > 2:
         df = pd.concat([df, spectra_dataframe.top3_internal_seq])
-
-    print(df.shape)
 
     # Finding the maximum length of the strings in the column
     # Creating a new dataframe to store the results
@@ -284,8 +279,6 @@ def logo_of_fraction(spectra_dataframe, fragments_dataframe, topn = 3, max_lengt
         # Displaying the frequency dataframe
     df_frequency = df_frequency.fillna(0)
         # Transposing and plotting logos
-
-    print(df_frequency.shape)
 
     ww_df = df_frequency.T
     logomaker.Logo(ww_df,

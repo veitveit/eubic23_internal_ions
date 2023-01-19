@@ -160,7 +160,7 @@ def main_page():
             X_ion = st.checkbox("X ions", value = True)
             Y_ion = st.checkbox("Y ions", value = True)
             Z_ion = st.checkbox("Z ions", value = True)
-            Zdot_ion = st.checkbox("Zdot ions")
+            Zdot_ion = st.checkbox("Zdot ions", value = True)
             Zp1_ion = st.checkbox("Z+1 ions", value = True)
             Zp2_ion = st.checkbox("Z+2 ions", value = True)
             Zp3_ion = st.checkbox("Z+3 ions", value = True)
@@ -280,7 +280,7 @@ def main():
 
     title = st.sidebar.title("Fragment Explorer - EuBIC 2023 Hackathon")
 
-    logo = st.sidebar.image("img/image(1).gif") # , caption = "Logo"
+    logo = st.sidebar.image("img/logo.png") # , caption = "Logo"
 
     doc = st.sidebar.markdown(about_str)
 
