@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
 from fragannot import fragment_annotation
-from typing import BytesIO
+from typing import BinaryIO
 from typing import Dict
 from typing import List
 import os
 import random
 from datetime import datetime
 
-def fragannot_call(spectrum_file: BytesIO,
-                   identifications_file: BytesIO,
+def fragannot_call(spectrum_file: BinaryIO,
+                   identifications_file: BinaryIO,
                    tolerance: float,
                    fragment_types: List[str],
                    charges: List[str],
@@ -25,8 +25,8 @@ def fragannot_call(spectrum_file: BytesIO,
         f2.write(identifications_file.getbuffer())
 
     # run fragannot
-    fragannot_dict = fragment_annotation(output_name_prefix + spectrum_file.name,
-                                         output_name_prefix + identifications_file.name,
+    fragannot_dict = fragment_annotation(output_name_prefix + identifications_file.name,
+                                         output_name_prefix + spectrum_file.name,
                                          tolerance,
                                          fragment_types,
                                          charges,
@@ -35,7 +35,13 @@ def fragannot_call(spectrum_file: BytesIO,
                                          write_file = False)
 
     # remove written files
-    os.remove(output_name_prefix + spectrum_file.name)
-    os.remove(output_name_prefix + identifications_file.name)
+    try:
+        os.remove(output_name_prefix + spectrum_file.name)
+    except Exception as e:
+        print("Could not remove file" + output_name_prefix + spectrum_file.name)
+    try:
+        os.remove(output_name_prefix + identifications_file.name)
+    except Exception as e:
+        print("Could not remove file" + output_name_prefix + identifications_file.name)
 
     return fragannot_dict
