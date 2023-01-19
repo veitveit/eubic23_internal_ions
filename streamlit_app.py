@@ -9,18 +9,16 @@
 """
 
 import numpy as np
-import streamlit as st
-import plotly.figure_factory as ff
 import pandas as pd
+
+
+import streamlit as st
 import json 
 
 from json_to_dataframes import json_to_dataframes
-
-
 from stats_page import * 
 from spectra_page import * 
 from filtering_files import * 
-    
 
 
 
@@ -36,8 +34,7 @@ def main_page():
 
         text_1 = st.markdown("General description")   
 
-        # Decripbe project, goal and members 
-
+        # Decripbe project, goal and members
         text_1 = st.markdown("Internal ion description ") 
         
         # Add forumula for nomenclatur and mass 
@@ -48,84 +45,97 @@ def main_page():
                     ''')
 
         
-        
     with data_import_tab:
         
         title = st.title("Data Import")
 
-        spectrum_file = st.file_uploader("Upload spectrum file:",
-                                         type = ["raw"],
-                                         help = "desc"
-                                        )
+        
+        #spectrum_file = st.file_uploader("Upload spectrum file:",
+        #                                 type = ["raw"],
+        #                                 help = "desc"
+        #                                )
     
-        identifications_file = st.file_uploader("Upload identification file:",
-                                                type = ["mzId"],
-                                                help = "desc"
-                                               )
+        #identifications_file = st.file_uploader("Upload identification file:",
+        #                                        type = ["mzId"],
+        #                                        help = "desc"
+        #                                       )
 
-   
-        # Running fragannot 
-        #json_data = run_fragannot(spectrum_file, identifications_file)  
 
         # Change this later 
-        test_FILE = "/Users/hmt128/Work/eubic/data/data.json" 
-
-        # converting json into pandas 
-        pandas_df = json_pandas(test_FILE)  # change to json_data 
-
-        data_text = st.markdown("Your data has arrived")   
-
-        st.table(pandas_df.head(10))
-
+        test_FILE_name = "/Users/hmt128/Work/eubic/data/data.json" 
+        
+        data_text = st.markdown("Upload and filter  json files with internal fragment ion matches from fragannot here. https://github.com/arthur-grimaud/fragannot")  
+        
+        test_FILE = st.file_uploader("Upload json file:",
+                                                type = ["json"],
+                                                help = "Process you mzid and mgf file to fins internal fragment ions using fragannot on: https://github.com/arthur-grimaud/fragannot"
+                                               )
+        
+  
         data_text = st.markdown("Select filtering options below")  
 
         start_seq_length, end_seq_length = st.select_slider("Peptide sequence lenght", 
                                             options= range(0,501), 
-                                            value = (10,50))
+                                            value = (0,500))
 
         start_frag_len, end_frag_len = st.select_slider("Fragment ion sequence lenght", 
                                             options= range(0,101), 
-                                            value = (10,50))
+                                            value = (0,100))
 
         start_mz, end_mz = st.select_slider("Select m/z range", 
                                             options= range(0,1001), 
-                                            value = (20,50))
+                                            value = (0,1000))
 
         start_int, end_int = st.select_slider("Select intensity range", 
                                               options= range(0,100001), 
-                                              value =(20,10000))
+                                              value =(0,100000))
 
         #seq_length = st.number_input("Identification score range")
-        data_text = st.markdown("Select ions to look for below") 
-        A_ion = st.checkbox("A ions")
-        B_ion = st.checkbox("B ions")
-        C_ion = st.checkbox("C ions")
-        X_ion = st.checkbox("X ions")
-        Y_ion = st.checkbox("Y ions")
-        Z_ion = st.checkbox("Z ions")
+        data_text = st.markdown("Select ions to look for below")  
         
-        # running filtering function 
-    
-        filt_df = filter_json_file(pandas_df, start_seq_length, 
-                               end_seq_length, start_frag_len, end_frag_len, 
-                                   start_mz, end_mz, start_int, end_int) 
-    
+        # Lsst of booleans 
+        A_ion = st.checkbox("A ions", value = True)
+        B_ion = st.checkbox("B ions", value = True)
+        C_ion = st.checkbox("C ions", value = True)
+        X_ion = st.checkbox("X ions", value = True)
+        Y_ion = st.checkbox("Y ions", value = True)
+        Z_ion = st.checkbox("Z ions", value = True)
+        
+        ion_filter_param = [A_ion, B_ion, C_ion, X_ion, Y_ion, Z_ion]
+        
+        
+        if test_FILE is not None:
+            
+            dataframes = json_to_dataframes(test_FILE_name, is_file = True) 
+            
+            # running filtering function 
+            filt_dfs = filtering_files(dataframes, start_seq_length, end_seq_length, start_frag_len, end_frag_len, start_mz, end_mz, start_int, end_int, ion_filter_param)
+            
+            # showing data in app
+            data_text = st.markdown("Your data has arrived")
+            st.table(filt_dfs[0].head(10))
+            
+        elif test_FILE is None: 
+            data_text = st.markdown("Please upload a file for analysis!")
+        
+
     
     with spectra_tab:
+        
+        # WIP
         
         title = st.title("Spectra view")
         
         data_text = st.markdown("Desc")
         
     
-        Spectrum_select = st.number_input("Input desired spetrum number" , 
-                                          step = 1, min_value = 1, max_value = len(pandas_df)) 
+        #Spectrum_select = st.number_input("Input desired spetrum number" , 
+        #                                  step = 1, min_value = 1, max_value = len(filt_dfs[1])) 
         
         # Make a function thart shows one spectra at a time 
         # select one spectra from dataframe to pass into this fucntion
         
-        show_specta(Spectrum_select)
-
+        #show_specta(Spectrum_select)
     
 
     with stats_tab:
@@ -135,7 +145,7 @@ def main_page():
         data_text = st.markdown("Desc")
     
         title = st.title("First plot")
-        plot = st.plotly_chart(all_ion_sum(test_FILE), use_container_width = True) 
+        plot = st.plotly_chart(common_type_hist(test_FILE_name), use_container_width = True) 
             
         title = st.title("Second plot")
         plot = st.plotly_chart(example_plot(), use_container_width = True) 
@@ -170,8 +180,7 @@ def main():
 
     doc = st.sidebar.markdown("desc")
    
-                               
-    
+
     contact_str = "**Contact:** [Arthur Grimaud](mailto:agrimaud@bmb.sdu.dk), [Caroline Lennartsson](mailto:caroline.lennartsson@cpr.ku.dk), [Kristian Boje Nielsen](krisn16@student.sdu.dk), [Louise Buur](louise.buur@fh-hagenberg.at), [Micha Birklbauer](mailto:micha.birklbauer@gmail.com), [Mohieddin Jafari](mohieddin.jafari@helsinki.fi), [Veit](veits@bmb.sdu.dk), [Vladimir Gorshkov](homer2k@gmail.com), [Zoltan Udvardy](zoltan.udvardy.ipbs@gmail.com) "
     contact = st.sidebar.markdown(contact_str)
 
@@ -206,25 +215,6 @@ def run_fragannot(spectrum_file, identifications_file):
     json_file = "file"
 
     return json_file
-
-
-
-def json_pandas(json_file): 
-    """ 
-    Function to read the json fragannot output file into a pandas df. 
-    
-    """
-    
-
-    dataframes = json_to_dataframes(json_file)
-
-    fragments_dataframe = dataframes[0]
-    spectra_dataframe = dataframes[1]
-
-    #fragments_dataframe.head()
-    
-    return fragments_dataframe
-
 
 
 
