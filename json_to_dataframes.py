@@ -5,11 +5,14 @@ import json
 import pandas as pd
 from typing import List
 
-def json_to_dataframes(json_file: str) -> List[pd.DataFrame]:
+def json_to_dataframes(json_file: str, is_file: bool = False) -> List[pd.DataFrame]:
 
-    with open(json_file, "r", encoding = "utf-8") as f:
+    if is_file:
         data = json.load(f)
-        f.close()
+    else:
+        with open(json_file, "r", encoding = "utf-8") as f:
+            data = json.load(f)
+            f.close()
 
     fragment = {'frag_code':[],
                 'frag_seq':[],
@@ -24,7 +27,7 @@ def json_to_dataframes(json_file: str) -> List[pd.DataFrame]:
                 'perc_of_total_intensity':[],
                 'prop_intensity_to_base_peak':[],
                 'modification':[],
-                'scan_number':[],
+                'spectrum_id':[],
                 'ambiguity':[]}
 
     spectrum = {'perc_internal':[],
@@ -41,7 +44,7 @@ def json_to_dataframes(json_file: str) -> List[pd.DataFrame]:
                 'top3_internal_seq':[],
                 'intensity_explained_aa':[],
                 'intensity_explained_precursor':[],
-                'scan_number':[],
+                'spectrum_id':[],
                 'score':[],
                 'peptide_seq':[],
                 'peptide_length':[]}
@@ -70,8 +73,8 @@ def json_to_dataframes(json_file: str) -> List[pd.DataFrame]:
                 intensity_base_peak = max(entry["annotation"]["intensity"])
                 fragment['prop_intensity_to_base_peak'].append(entry["annotation"]["intensity"][i]/intensity_base_peak)
                 fragment['modification'].append("")
-                fragment['scan_number'].append(0) # Change later
-                fragment['ambiguity'].append(0) # Change later
+                fragment['spectrum_id'].append(get_spectrum_id(entry))
+                fragment['ambiguity'].append(get_ambiguity(entry["annotation"],i))
             else:
                 start, end, ion_cap_start, ion_cap_end, charge, formula = parse_fragment_code(code)
                 frag_seq = pep_seq[start-1:end]
@@ -90,8 +93,8 @@ def json_to_dataframes(json_file: str) -> List[pd.DataFrame]:
                 intensity_base_peak = max(entry["annotation"]["intensity"])
                 fragment['prop_intensity_to_base_peak'].append(entry["annotation"]["intensity"][i]/intensity_base_peak)
                 fragment['modification'].append(parse_modfication(entry["proforma"],start,end))
-                fragment['scan_number'].append(0) # Change later
-                fragment['ambiguity'].append(0) # Change later
+                fragment['spectrum_id'].append(get_spectrum_id(entry))
+                fragment['ambiguity'].append(get_ambiguity(entry["annotation"],i))
 
         # Spectrum
         percentages_and_total_intensities = calculate_internal_terminal_non_annotated_ions(entry["annotation"]["theoretical_code"],entry["annotation"]["intensity"])
@@ -108,14 +111,59 @@ def json_to_dataframes(json_file: str) -> List[pd.DataFrame]:
         spectrum['top2_internal_seq'].append(top_3[1][1])
         spectrum['top3_internal_ion_code'].append(top_3[0][2])
         spectrum['top3_internal_seq'].append(top_3[1][2])
-        spectrum['intensity_explained_aa'].append(0)
-        spectrum['intensity_explained_precursor'].append(0)
-        spectrum['scan_number'].append(0)
-        spectrum['score'].append(0)
+        spectrum['intensity_explained_aa'].append(find_explained_by_aa(entry["annotation"]["theoretical_code"],entry["annotation"]["intensity"]))
+        spectrum['intensity_explained_precursor'].append(find_explained_precursor(entry))
+        spectrum['spectrum_id'].append(get_spectrum_id(entry))
+        spectrum['score'].append(get_identification_score(entry))
         spectrum['peptide_seq'].append(pep_seq)
         spectrum['peptide_length'].append(len(pep_seq))
 
     return [pd.DataFrame(fragment),pd.DataFrame(spectrum)]
+
+def get_spectrum_id(entry):
+
+    if "spectrum_id" in entry:
+        return entry["spectrum_id"]
+    else:
+        return ""
+
+def get_identification_score(entry):
+
+    if "identification_score" in entry:
+        return entry["identification_score"]
+    else:
+        return 0.0
+
+def get_ambiguity(entry_annotation, index):
+
+    if "matches_count" in entry_annotation:
+        return entry_annotation["matches_count"][index]
+    else:
+        return -1
+
+def find_explained_by_aa(fragments, intensities):
+
+    intensities_single_aa = 0
+
+    for i, frag in enumerate(fragments):
+        if frag is not None and "t" not in frag:
+            start, end, ion_cap_start, ion_cap_end, charge, formula = parse_fragment_code(frag)
+            if start == end:
+                intensities_single_aa += intensities[i]
+
+    return intensities_single_aa / sum(intensities)
+
+def find_explained_precursor(entry):
+
+    precursor_intensity = 0
+
+    if "precursor_intensity" in entry:
+        precursor_intensity = float(entry["precursor_intensity"])
+
+    if precursor_intensity > 0:
+        return precursor_intensity / sum(entry["annotation"]["intensity"])
+
+    return -1
 
 def find_top3_most_intense_internal_ions(fragments, intensities, pep_seq):
     mapping = dict()
