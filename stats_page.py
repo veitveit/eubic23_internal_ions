@@ -2,11 +2,14 @@ import json
 import pandas as pd
 import plotly.io as io
 import numpy as np
+import logomaker 
 
 # 
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 
+
+import matplotlib.pyplot as plt
 
 
 
@@ -85,6 +88,7 @@ def log_ion_intens_dist(fragments_dataframe):
             title="Histograms of logarithmic intensities per ion type",
             xaxis_title="log2(intensity)",
             yaxis_title=histnorm)
+        
     return fig
 
 
@@ -152,7 +156,7 @@ def mz_dist_ion_type(fragments_dataframe):
 def per_spec_ion_type(spectra_dataframe):
     histnorm = "probability"
     types = ["internal","terminal","other"]
-    print(types)
+
     histograms = list()
     for t in types:
         histograms.append(go.Histogram(x=spectra_dataframe["perc_" + t], histnorm=histnorm, name=t, nbinsx=50))
@@ -162,7 +166,7 @@ def per_spec_ion_type(spectra_dataframe):
             title="Histograms of percentages of ion type per spectrum",
             xaxis_title="Percentage",
             yaxis_title=histnorm)
-        #fig.show()
+
     return fig
 
 
@@ -173,6 +177,7 @@ def per_spec_ion_intens(spectra_dataframe):
     histnorm = "probability"
     types = ["internal","terminal","other"]
     histograms = list()
+    
     for t in types:
         histograms.append(go.Histogram(x=spectra_dataframe["total_int_" + t], histnorm=histnorm, name=t, nbinsx=50))
         fig = go.Figure(histograms)
@@ -181,7 +186,7 @@ def per_spec_ion_intens(spectra_dataframe):
             title="Histograms of percentages of ion type per spectrum",
             xaxis_title="Percentage",
             yaxis_title=histnorm)
-        #fig.show()
+
     return fig
 
 
@@ -245,4 +250,49 @@ def rel_ion_intens_prop_ridge(fragments_dataframe):
 
 ## Distribution of total intensity of single amino acids
 # Filter for all single amino acid fragments
-#fragments_dataframe[fragments_dataframe['frag_seq'].str.len() == 1 and fragments_dataframe.modification.empty()]
+#fragments_dataframe[fragments_dataframe['frag_seq'].str.len() == 1 and fragments_dataframe.modification.empty()] 
+
+
+
+
+def logo_of_fraction(spectra_dataframe, topn = 3, max_length = 10, min_length = 10):
+    
+
+    fig1, ax1 = plt.subplots(facecolor = (0.18, 0.31, 0.31)) 
+    
+    df = spectra_dataframe.top1_internal_seq
+    
+    if topn > 1:
+        df = pd.concat([df, spectra_dataframe.top2_internal_seq])
+    if topn > 2:
+        df = pd.concat([df, spectra_dataframe.top3_internal_seq])
+
+    
+    # Finding the maximum length of the strings in the column
+    # Creating a new dataframe to store the results
+    df_frequency = pd.DataFrame()
+    # Iterating over each position up to the maximum length
+    tt = df[(df.str.len() <= max_length) & (df.str.len() >= min_length) ]
+    for i in range(0, max_length):
+        # Counting the frequency of each letter at position i
+        frequency = tt.str[i].value_counts()
+        # Adding the frequency to the new dataframe
+        df_frequency[i] = frequency/sum(frequency)
+        # Displaying the frequency dataframe
+    df_frequency = df_frequency.fillna(0)
+        # Transposing and plotting logos
+    ww_df = df_frequency.T
+    logomaker.Logo(ww_df, ax=ax1,
+                             color_scheme='NajafabadiEtAl2017',
+                             vpad=.1,
+                             width=.8,
+                             )
+    
+    ax1.set_xlabel("Position in subset")
+    ax1.set_ylabel("Amino acid frequency")
+    ax1.set_facecolor('white')
+
+    
+    return fig1
+
+

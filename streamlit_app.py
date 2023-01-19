@@ -15,9 +15,9 @@ import pandas as pd
 import streamlit as st
 
 from json_to_dataframes import json_to_dataframes
-from stats_page import * 
-from spectra_page import * 
-from filtering_files import * 
+from stats_page import *  # plotting functions
+from spectra_page import *  # spectra view 
+from filtering_files import *  # filter files functions
 
 
 
@@ -37,11 +37,7 @@ def main_page():
         text_1 = st.markdown("Internal ion description ") 
         
         # Add forumula for nomenclatur and mass 
-        formula = st.latex(r'''
-                    a + ar + a r^2 + a r^3 + \cdots + a r^{n-1} =
-                    \sum_{k=0}^{n-1} ar^k =
-                    a \left(\frac{1-r^{n}}{1-r}\right)
-                    ''')
+        formula = st.latex(r"""M(fragment)= \frac{M(peptide)+\Delta M(IonCap_{start})-\Delta M(IonCap_{end})+M(H)\times charge -M(formular) } {charge}""")
 
         
     with data_import_tab:
@@ -49,19 +45,19 @@ def main_page():
         title = st.title("Data Import")
 
         
-        #spectrum_file = st.file_uploader("Upload spectrum file:",
-        #                                 type = ["raw"],
-        #                                 help = "desc"
-        #                                )
+        spectrum_file = st.file_uploader("Upload spectrum file:",
+                                         type = ["raw"],
+                                         help = "desc"
+                                        )
     
-        #identifications_file = st.file_uploader("Upload identification file:",
-        #                                        type = ["mzId"],
-        #                                        help = "desc"
-        #                                       )
+        identifications_file = st.file_uploader("Upload identification file:",
+                                                type = ["mzId"],
+                                                help = "desc"
+                                               )
 
 
         # Change this later 
-        #test_FILE_name = "/Users/hmt128/Work/eubic/data/data.json" 
+        test_FILE_name = "/Users/hmt128/Work/eubic/data/data.json" 
         
         data_text = st.markdown("Upload and filter json files with internal fragment ion matches from fragannot here. https://github.com/arthur-grimaud/fragannot")  
         
@@ -73,20 +69,20 @@ def main_page():
         data_text = st.markdown("Select filtering options below")  
 
         start_seq_length, end_seq_length = st.select_slider("Peptide sequence lenght", 
-                                            options= range(0,501), 
-                                            value = (0,500))
+                                            options= range(0,5001), 
+                                            value = (0,5000))
 
         start_frag_len, end_frag_len = st.select_slider("Fragment ion sequence lenght", 
-                                            options= range(0,101), 
-                                            value = (0,100))
-
-        start_mz, end_mz = st.select_slider("Select m/z range", 
                                             options= range(0,1001), 
                                             value = (0,1000))
 
-        start_int, end_int = st.select_slider("Select intensity range", 
-                                              options= range(0,100001), 
-                                              value =(0,100000))
+        start_mz, end_mz = st.select_slider("Select m/z range for internal fragment", 
+                                            options= range(0,100001), 
+                                            value = (0,100000))
+
+        start_int, end_int = st.select_slider("Select intensity range for internal fragment ", 
+                                              options= range(0,1000001), 
+                                              value =(0,1000000))
 
         #seq_length = st.number_input("Identification score range")
         data_text = st.markdown("Select which ions to analyse")  
@@ -190,19 +186,27 @@ def main_page():
                     title = st.header("Relative Log Intensities")
                     plot = st.plotly_chart(rel_ion_intens_ridge(filt_dfs[0]), use_container_width = True)
                 
+                
+                # Per spectra view 
                 title = st.title("Per spectra")
            
                 
                 col111, col222 = st.columns(2)
                 
                 with col111: 
-                    title = st.header("per_spec_ion_type")
+                    title = st.header("Ion type per spectra")
                     plot = st.plotly_chart(per_spec_ion_type(filt_dfs[1]), use_container_width = True)
                     
                 with col222: 
                     title = st.header("Log Intensities")
                     plot = st.plotly_chart(per_spec_ion_intens(filt_dfs[1]), use_container_width = True)
+                    
+                    
+                # Logo view 
+                title = st.title("Logo view of internal fragments")
+                #plot = st.plotly_chart(, use_container_width = True)    
                 
+                plot = st.pyplot(logo_of_fraction(filt_dfs[1]), use_container_width = True) # , clear_figure=None, **kwargs 
             
 
         #elif test_FILE is None: 
@@ -254,12 +258,12 @@ def main():
 
     title = st.sidebar.title("EuBic 2023 Hackathon")
 
-    logo = st.sidebar.image("img/logo.png", caption = "Logo")
+    logo = st.sidebar.image("img/image(1).gif") # , caption = "Logo" 
 
     doc = st.sidebar.markdown("desc")
    
 
-    contact_str = "**Contact:** [Arthur Grimaud](mailto:agrimaud@bmb.sdu.dk), [Caroline Lennartsson](mailto:caroline.lennartsson@cpr.ku.dk), [Kristian Boje Nielsen](krisn16@student.sdu.dk), [Louise Buur](louise.buur@fh-hagenberg.at), [Micha Birklbauer](mailto:micha.birklbauer@gmail.com), [Mohieddin Jafari](mohieddin.jafari@helsinki.fi), [Veit](veits@bmb.sdu.dk), [Vladimir Gorshkov](homer2k@gmail.com), [Zoltan Udvardy](zoltan.udvardy.ipbs@gmail.com) "
+    contact_str = "**Contact:** [Arthur Grimaud](mailto:agrimaud@bmb.sdu.dk), [Caroline Lennartsson](mailto:caroline.lennartsson@cpr.ku.dk), [Kristian Boje Nielsen](krisn16@student.sdu.dk), [Louise Buur](louise.buur@fh-hagenberg.at), [Micha Birklbauer](mailto:micha.birklbauer@gmail.com), [Mohieddin Jafari](mohieddin.jafari@helsinki.fi), [Veit S](veits@bmb.sdu.dk), [Vladimir Gorshkov](homer2k@gmail.com), [Zoltan Udvardy](zoltan.udvardy.ipbs@gmail.com) "
     contact = st.sidebar.markdown(contact_str)
 
     license_str = "**License:** [MIT License](https://github.com/michabirklbauer/piaweb/blob/master/LICENSE.md)"
