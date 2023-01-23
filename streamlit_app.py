@@ -27,7 +27,7 @@ def main_page():
                                                     "Statistical analysis"]) # "Spectra analysis",  spectra_tab,
 
     with main_tab:
-        title = st.title("Fragment Exlporer")
+        title = st.title("Fragment Explorer")
 
         general_description = \
         """
@@ -199,7 +199,8 @@ def main_page():
                     col1, col2 = st.columns(2)
 
                     with col1:
-                        title = st.header("Histogram of ion types:")
+                        title = st.header("Histogram of ion types:") 
+                        # titel + sort per size
                         plot = st.plotly_chart(common_type_hist(filt_dfs[0]), use_container_width = True)
 
                     with col2:
