@@ -1,7 +1,0 @@
-numpy
-pyteomics
-argparse
-pprintpp
-unimod-mapper 
-spectrum_utils
-psm_utils
