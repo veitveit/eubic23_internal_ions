@@ -1,6 +1,6 @@
 # Dockerfile for Fragment Explorer
 # author: Micha Birklbauer
-# version: 1.0.0
+# version: 1.1.0
 
 FROM ubuntu:22.04
 
@@ -17,6 +17,5 @@ RUN git clone https://github.com/veitveit/eubic23_internal_ions.git
 WORKDIR eubic23_internal_ions
 
 RUN pip3 install -r requirements.txt
-RUN pip3 install -r fragannot_requirements.txt
 
 CMD  ["streamlit", "run", "streamlit_app.py"]

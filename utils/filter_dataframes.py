@@ -1,19 +1,21 @@
+#!/usr/bin/env python3
+
 import numpy as np
 import pandas as pd
 from typing import List
 
-def filtering_files(dataframes: List[pd.DataFrame],
-                    start_seq_length: int,
-                    end_seq_length: int,
-                    start_frag_len: int,
-                    end_frag_len: int,
-                    start_mz: float,
-                    end_mz: float,
-                    start_int: float,
-                    end_int: float,
-                    ion_filter: List[bool]) -> List[pd.DataFrame]:
+def filter_dataframes(dataframes: List[pd.DataFrame],
+                      start_seq_length: int,
+                      end_seq_length: int,
+                      start_frag_len: int,
+                      end_frag_len: int,
+                      start_mz: float,
+                      end_mz: float,
+                      start_int: float,
+                      end_int: float,
+                      ion_filter: List[bool]) -> List[pd.DataFrame]:
     """
-
+    Filters dataframes based on the given values.
     """
     ion_filter_translation = ["n", "a", "b", "c", "cdot", "c-1", "c+1", "x", "y", "z", "zdot", "z+1", "z+2", "z+3"]
     ions_considered = []
